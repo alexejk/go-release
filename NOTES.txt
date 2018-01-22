@@ -1,0 +1,9 @@
+Release flow:
+
+- Read configuration
+- Get current version
+- Bump version to release
+- Git commit
+- Build
+- Git tag
+- Set version to next development

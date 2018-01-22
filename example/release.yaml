@@ -1,0 +1,41 @@
+project:
+  version:
+    file: build.properties
+    property: APP_VERSION
+    increment: minor
+
+  build:
+    command: make build-in-docker
+
+  git:
+
+    tag:
+      format: $version
+      push: true
+
+    message:
+      release: "[release] Release version"
+      development: "[release] Next development version"
+
+publishing:
+
+  artifactory:
+    url:
+    repository:
+
+  s3upload:
+    bucket: my-tools
+    path: /release-tool/
+    artifacts:
+    - build/releaser-darwin
+    - build/release-linux
+
+  github:
+    draft: true
+    changelog:
+      file: CHANGELOG.md
+      format: Release $version
+
+    releaseName: $version
+    artifacts:
+    - build/releaser-$version-darwin.tar.gz
