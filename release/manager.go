@@ -3,6 +3,7 @@ package release
 import (
 	"path/filepath"
 
+	"github.com/alexejk/go-release-tools/release/build"
 	"github.com/alexejk/go-release-tools/release/vcs"
 	"github.com/alexejk/go-release-tools/release/version"
 	"github.com/coreos/go-semver/semver"
@@ -15,6 +16,7 @@ type Manager struct {
 	currentVersion *semver.Version
 	versionHandler *version.Handler
 	vcs            *vcs.GitHandler
+	builder        *build.Builder
 }
 
 func NewManager(workDir string) *Manager {
@@ -30,6 +32,7 @@ func NewManager(workDir string) *Manager {
 
 	m.versionHandler = version.NewVersionHandler(m.workDir)
 	m.vcs = vcs.NewGitHandler(m.workDir, m.versionHandler)
+	m.builder = build.NewBuilder(m.workDir)
 
 	return m
 }
@@ -73,6 +76,9 @@ func (m *Manager) MakeRelease() error {
 
 	// Build Project
 	log.Info("Building project")
+	if err := m.builder.Build(); err != nil {
+		return err
+	}
 
 	// Create tag
 	if m.vcs.IsGitRepository() {
