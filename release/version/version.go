@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
 	"github.com/alexejk/go-release-tools/config"
-	"github.com/alexejk/go-release-tools/log"
 	"github.com/coreos/go-semver/semver"
+	log "github.com/sirupsen/logrus"
 )
 
 const DevelopmentVersionPreRelease = "dev"
@@ -18,12 +19,14 @@ const DevelopmentVersionPreRelease = "dev"
 type Handler struct {
 	versionFile     string
 	versionProperty string
+
+	versionStringCache string
 }
 
-func NewVersionHandler(versionFile string) *Handler {
+func NewVersionHandler(workDir string) *Handler {
 
 	v := &Handler{
-		versionFile:     versionFile,
+		versionFile:     getVersionFile(workDir),
 		versionProperty: config.GetString(config.ProjectVersionProperty),
 	}
 
@@ -111,6 +114,12 @@ func (v *Handler) readVersionFile() (string, error) {
 
 func (v *Handler) readVersionStringFromFile() (string, error) {
 
+	if v.versionStringCache != "" {
+		return v.versionStringCache, nil
+	}
+
+	log.Debug("Parsing version file...")
+
 	versionFile, err := v.readVersionFile()
 	if err != nil {
 		return "", err
@@ -127,6 +136,9 @@ func (v *Handler) readVersionStringFromFile() (string, error) {
 
 func (v *Handler) writeVersionStringToFile(newVersion string) error {
 
+	// Wiping cache
+	v.versionStringCache = ""
+
 	fileInfo, _ := os.Stat(v.versionFile)
 
 	versionFile, err := v.readVersionFile()
@@ -136,5 +148,25 @@ func (v *Handler) writeVersionStringToFile(newVersion string) error {
 
 	newVersionFile := v.versionRegexp().ReplaceAllString(versionFile, "${1}"+newVersion+"${3}")
 
-	return ioutil.WriteFile(v.versionFile, []byte(newVersionFile), fileInfo.Mode().Perm())
+	if err = ioutil.WriteFile(v.versionFile, []byte(newVersionFile), fileInfo.Mode().Perm()); err != nil {
+		return err
+	}
+
+	// Re-write the cache
+	v.versionStringCache = newVersion
+	return nil
+}
+
+func getVersionFile(workDir string) string {
+
+	return path.Join(workDir, config.GetString(config.ProjectVersionFile))
+}
+
+func (v *Handler) InterpolateVersionInString(input string) string {
+
+	currentVersion, _ := v.GetVersion()
+
+	res := strings.Replace(input, "${version}", currentVersion.String(), -1)
+
+	return res
 }

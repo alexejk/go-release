@@ -1,4 +1,4 @@
-package log
+package main
 
 /**
 Formatter based on https://github.com/x-cray/logrus-prefixed-formatter

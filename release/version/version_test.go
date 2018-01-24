@@ -224,3 +224,51 @@ prop=something
 
 	}
 }
+
+func Test_getVersionFile(t *testing.T) {
+
+	data := []struct {
+		workDir        string
+		cfgVersionFile string
+		expected       string
+	}{
+		{"", "version.properties", "version.properties"},
+		{"./", "version.props", "version.props"},
+		{"/opt/proj", "build.properties", "/opt/proj/build.properties"},
+		{"../a/proj", "build.properties", "../a/proj/build.properties"},
+		{"../a/proj", "build/version.properties", "../a/proj/build/version.properties"},
+	}
+
+	for _, tt := range data {
+
+		config.Reset()
+		config.Set(config.ProjectVersionFile, tt.cfgVersionFile)
+
+		result := getVersionFile(tt.workDir)
+
+		assert.Equal(t, tt.expected, result)
+	}
+}
+
+func TestHandler_InterpolateVersionInString(t *testing.T) {
+
+	data := []struct {
+		input    string
+		version  string
+		expected string
+	}{
+		{"Release ${version}.", "1.2.3", "Release 1.2.3."},
+		{"Release ${version", "1.2.3", "Release ${version"},
+		{"Release $${version}}", "1.2.3", "Release $1.2.3}"},
+	}
+
+	for _, tt := range data {
+
+		instance := &Handler{
+			versionStringCache: tt.version, // This is hacky, don't like it
+		}
+		result := instance.InterpolateVersionInString(tt.input)
+
+		assert.Equal(t, tt.expected, result)
+	}
+}
