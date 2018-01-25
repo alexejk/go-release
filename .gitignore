@@ -1,3 +1,5 @@
 vendor/
 build/
 mocks/
+
+!release/build/
