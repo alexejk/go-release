@@ -6,7 +6,6 @@ const (
 	ProjectVersionProperty      = ProjectVersionRoot + ".property"
 	ProjectVersionIncrementType = ProjectVersionRoot + ".increment"
 
-	ProjectGitRoot               = "project.git"
-	ProjectGitMessageRelease     = ProjectGitRoot + ".message.release"
-	ProjectGitMessageDevelopment = ProjectGitRoot + ".message.development"
+	ProjectGitRoot      = "project.git"
+	ProjectBuildCommand = "project.build.command"
 )

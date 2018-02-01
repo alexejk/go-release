@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alexejk/go-release-tools/config"
+	"github.com/alexejk/go-release/config"
 	"github.com/coreos/go-semver/semver"
 	log "github.com/sirupsen/logrus"
 )

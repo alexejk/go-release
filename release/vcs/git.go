@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/alexejk/go-release-tools/config"
-	"github.com/alexejk/go-release-tools/release/version"
+	"github.com/alexejk/go-release/config"
+	"github.com/alexejk/go-release/release/version"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
 	gitconfig "gopkg.in/src-d/go-git.v4/config"

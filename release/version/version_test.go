@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alexejk/go-release-tools/config"
+	"github.com/alexejk/go-release/config"
 	"github.com/coreos/go-semver/semver"
 	"github.com/stretchr/testify/assert"
 )

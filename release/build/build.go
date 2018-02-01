@@ -1,13 +1,15 @@
 package build
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
 
-	"github.com/alexejk/go-release-tools/config"
+	"github.com/alexejk/go-release/config"
+	"github.com/sirupsen/logrus"
 )
 
 type Builder struct {
@@ -25,7 +27,7 @@ func NewBuilder(workDir string) *Builder {
 
 func (b *Builder) Build() error {
 
-	buildCmd := config.GetString("project.build.command")
+	buildCmd := config.GetString(config.ProjectBuildCommand)
 	args := strings.Split(buildCmd, " ")
 
 	program := args[0]
@@ -37,8 +39,8 @@ func (b *Builder) Build() error {
 	execCmd := exec.Command(program, pArgs...)
 	execCmd.Dir = b.workDir
 	execCmd.Stdin = os.Stdin
-	execCmd.Stdout = os.Stdout
-	execCmd.Stderr = os.Stderr
+	execCmd.Stdout = b.loggedStdOut()
+	execCmd.Stderr = b.loggedStdErr()
 	execCmd.Env = os.Environ()
 
 	// Forward SIGINT, SIGTERM, SIGKILL to the child command
@@ -53,4 +55,18 @@ func (b *Builder) Build() error {
 	}()
 
 	return execCmd.Run()
+}
+
+func (b *Builder) loggedStdOut() io.Writer {
+	var log = logrus.WithField("prefix", "build")
+	log.Level = logrus.InfoLevel
+
+	return log.Writer()
+}
+
+func (b *Builder) loggedStdErr() io.Writer {
+	var log = logrus.WithField("prefix", "build")
+	log.Level = logrus.ErrorLevel
+
+	return log.Writer()
 }

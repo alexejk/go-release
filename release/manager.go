@@ -3,9 +3,9 @@ package release
 import (
 	"path/filepath"
 
-	"github.com/alexejk/go-release-tools/release/build"
-	"github.com/alexejk/go-release-tools/release/vcs"
-	"github.com/alexejk/go-release-tools/release/version"
+	"github.com/alexejk/go-release/release/build"
+	"github.com/alexejk/go-release/release/vcs"
+	"github.com/alexejk/go-release/release/version"
 	"github.com/coreos/go-semver/semver"
 	log "github.com/sirupsen/logrus"
 )

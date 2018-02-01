@@ -1,0 +1,10 @@
+# Directories
+build/
+_example/
+vendor/
+docs/
+mocks/
+
+# Files
+README.md
+
