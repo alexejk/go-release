@@ -3,9 +3,6 @@ package release
 import (
 	"path/filepath"
 
-	"github.com/alexejk/go-release/release/build"
-	"github.com/alexejk/go-release/release/vcs"
-	"github.com/alexejk/go-release/release/version"
 	"github.com/coreos/go-semver/semver"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,9 +11,9 @@ type Manager struct {
 	workDir string
 
 	currentVersion *semver.Version
-	versionHandler *version.Handler
-	vcs            *vcs.GitHandler
-	builder        *build.Builder
+	versionHandler *VersionHandler
+	vcs            *GitHandler
+	builder        *Builder
 }
 
 func NewManager(workDir string) *Manager {
@@ -30,9 +27,9 @@ func NewManager(workDir string) *Manager {
 		workDir: absWorkDir,
 	}
 
-	m.versionHandler = version.NewVersionHandler(m.workDir)
-	m.vcs = vcs.NewGitHandler(m.workDir, m.versionHandler)
-	m.builder = build.NewBuilder(m.workDir)
+	m.versionHandler = NewVersionHandler(m.workDir)
+	m.vcs = NewGitHandler(m.workDir, m.versionHandler)
+	m.builder = NewBuilder(m.workDir)
 
 	return m
 }

@@ -1,4 +1,4 @@
-package vcs
+package release
 
 type GitConfiguration struct {
 	Tag    *GitConfigurationTag

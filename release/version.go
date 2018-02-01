@@ -1,4 +1,4 @@
-package version
+package release
 
 import (
 	"errors"
@@ -16,16 +16,16 @@ import (
 
 const DevelopmentVersionPreRelease = "dev"
 
-type Handler struct {
+type VersionHandler struct {
 	versionFile     string
 	versionProperty string
 
 	versionStringCache string
 }
 
-func NewVersionHandler(workDir string) *Handler {
+func NewVersionHandler(workDir string) *VersionHandler {
 
-	v := &Handler{
+	v := &VersionHandler{
 		versionFile:     getVersionFile(workDir),
 		versionProperty: config.GetString(config.ProjectVersionProperty),
 	}
@@ -38,7 +38,7 @@ func NewVersionHandler(workDir string) *Handler {
 	return v
 }
 
-func (v *Handler) GetVersion() (*semver.Version, error) {
+func (v *VersionHandler) GetVersion() (*semver.Version, error) {
 
 	verStr, err := v.readVersionStringFromFile()
 	if err != nil {
@@ -53,13 +53,13 @@ func (v *Handler) GetVersion() (*semver.Version, error) {
 	return ver, nil
 }
 
-func (v *Handler) SetVersion(version *semver.Version) error {
+func (v *VersionHandler) SetVersion(version *semver.Version) error {
 
 	// Write to file
 	return v.writeVersionStringToFile(version.String())
 }
 
-func (v *Handler) ReleaseVersion(version *semver.Version) *semver.Version {
+func (v *VersionHandler) ReleaseVersion(version *semver.Version) *semver.Version {
 
 	newVersion := &semver.Version{}
 	*newVersion = *version
@@ -70,7 +70,7 @@ func (v *Handler) ReleaseVersion(version *semver.Version) *semver.Version {
 	return newVersion
 }
 
-func (v *Handler) NextDevelopmentVersion(version *semver.Version) *semver.Version {
+func (v *VersionHandler) NextDevelopmentVersion(version *semver.Version) *semver.Version {
 
 	incrementType := config.GetString(config.ProjectVersionIncrementType)
 	if incrementType == "" {
@@ -98,11 +98,11 @@ func (v *Handler) NextDevelopmentVersion(version *semver.Version) *semver.Versio
 	return newVersion
 }
 
-func (v *Handler) versionRegexp() *regexp.Regexp {
+func (v *VersionHandler) versionRegexp() *regexp.Regexp {
 	return regexp.MustCompile(`(?m:^(\s*` + v.versionProperty + `\s*=\s*)([a-zA-Z0-9-.]*)(\s*)$)`)
 }
 
-func (v *Handler) readVersionFile() (string, error) {
+func (v *VersionHandler) readVersionFile() (string, error) {
 
 	fileBytes, err := ioutil.ReadFile(v.versionFile)
 	if err != nil {
@@ -112,7 +112,7 @@ func (v *Handler) readVersionFile() (string, error) {
 	return string(fileBytes), nil
 }
 
-func (v *Handler) readVersionStringFromFile() (string, error) {
+func (v *VersionHandler) readVersionStringFromFile() (string, error) {
 
 	if v.versionStringCache != "" {
 		return v.versionStringCache, nil
@@ -134,7 +134,7 @@ func (v *Handler) readVersionStringFromFile() (string, error) {
 	return "", errors.New("unable to find matching version property in the version file")
 }
 
-func (v *Handler) writeVersionStringToFile(newVersion string) error {
+func (v *VersionHandler) writeVersionStringToFile(newVersion string) error {
 
 	// Wiping cache
 	v.versionStringCache = ""
@@ -162,7 +162,7 @@ func getVersionFile(workDir string) string {
 	return path.Join(workDir, config.GetString(config.ProjectVersionFile))
 }
 
-func (v *Handler) InterpolateVersionInString(input string) string {
+func (v *VersionHandler) InterpolateVersionInString(input string) string {
 
 	currentVersion, _ := v.GetVersion()
 

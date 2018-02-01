@@ -1,4 +1,4 @@
-package version
+package release
 
 import (
 	"io/ioutil"
@@ -54,7 +54,7 @@ version  =32.0.0
 		_, err = versionFile.WriteString(tt.contents)
 		assert.NoError(t, err)
 
-		instance := &Handler{
+		instance := &VersionHandler{
 			versionFile:     versionFile.Name(),
 			versionProperty: tt.property,
 		}
@@ -96,7 +96,7 @@ func TestHandler_ReleaseVersion(t *testing.T) {
 		},
 	}
 
-	instance := &Handler{}
+	instance := &VersionHandler{}
 
 	for _, tt := range data {
 
@@ -133,7 +133,7 @@ func TestHandler_NextDevelopmentVersion(t *testing.T) {
 		},
 	}
 
-	instance := &Handler{}
+	instance := &VersionHandler{}
 
 	for _, tt := range data {
 
@@ -207,7 +207,7 @@ prop=something
 		_, err = versionFile.WriteString(tt.contents)
 		assert.NoError(t, err)
 
-		instance := &Handler{
+		instance := &VersionHandler{
 			versionFile:     versionFile.Name(),
 			versionProperty: tt.property,
 		}
@@ -264,7 +264,7 @@ func TestHandler_InterpolateVersionInString(t *testing.T) {
 
 	for _, tt := range data {
 
-		instance := &Handler{
+		instance := &VersionHandler{
 			versionStringCache: tt.version, // This is hacky, don't like it
 		}
 		result := instance.InterpolateVersionInString(tt.input)

@@ -25,6 +25,11 @@ func Unmarshal(key string, rawVal interface{}) error {
 	return p.UnmarshalKey(key, rawVal)
 }
 
+func IsSet(key string) bool {
+
+	return p.IsSet(key)
+}
+
 func Reset() {
 
 	p = viper.New()

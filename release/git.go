@@ -1,4 +1,4 @@
-package vcs
+package release
 
 import (
 	"errors"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/alexejk/go-release/config"
-	"github.com/alexejk/go-release/release/version"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
 	gitconfig "gopkg.in/src-d/go-git.v4/config"
@@ -16,7 +15,7 @@ import (
 
 type GitHandler struct {
 	workDir string
-	version *version.Handler
+	version *VersionHandler
 
 	repo *git.Repository
 	conf *GitConfiguration
@@ -27,7 +26,7 @@ const (
 	defaultCommitMessageDevelopment = "Next development version"
 )
 
-func NewGitHandler(workDir string, versionHandler *version.Handler) *GitHandler {
+func NewGitHandler(workDir string, versionHandler *VersionHandler) *GitHandler {
 
 	g := &GitHandler{
 		workDir: workDir,
