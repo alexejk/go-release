@@ -161,12 +161,3 @@ func getVersionFile(workDir string) string {
 
 	return path.Join(workDir, config.GetString(config.ProjectVersionFile))
 }
-
-func (v *VersionHandler) InterpolateVersionInString(input string) string {
-
-	currentVersion, _ := v.GetVersion()
-
-	res := strings.Replace(input, "${version}", currentVersion.String(), -1)
-
-	return res
-}

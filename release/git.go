@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/alexejk/go-release/config"
+	"github.com/alexejk/go-release/shared"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/src-d/go-git.v4"
 	gitconfig "gopkg.in/src-d/go-git.v4/config"
@@ -14,8 +15,8 @@ import (
 )
 
 type GitHandler struct {
-	workDir string
-	version *VersionHandler
+	workDir     string
+	versionInfo *shared.VersionInformation
 
 	repo *git.Repository
 	conf *GitConfiguration
@@ -26,12 +27,12 @@ const (
 	defaultCommitMessageDevelopment = "Next development version"
 )
 
-func NewGitHandler(workDir string, versionHandler *VersionHandler) *GitHandler {
+func NewGitHandler(workDir string, versionInfo *shared.VersionInformation) *GitHandler {
 
 	g := &GitHandler{
-		workDir: workDir,
-		conf:    &GitConfiguration{},
-		version: versionHandler,
+		workDir:     workDir,
+		conf:        &GitConfiguration{},
+		versionInfo: versionInfo,
 	}
 
 	repo, err := git.PlainOpen(g.workDir)
@@ -68,25 +69,24 @@ func (g *GitHandler) ReleaseCommit() (string, error) {
 		message = g.conf.Commit.Format.Release
 	}
 
-	message = g.version.InterpolateVersionInString(message)
+	message = g.versionInfo.InterpolateReleaseVersionInString(message)
 
 	return g.commit(message)
 }
 
-func (g *GitHandler) ReleaseTag() error {
+func (g *GitHandler) ReleaseTag() (string, error) {
 
 	// Tagging not enabled
 	if g.conf.Tag == nil {
-		return nil
+		return "", nil
 	}
 
-	currVersion, _ := g.version.GetVersion()
-	tagName := currVersion.String()
+	tagName := g.versionInfo.ReleaseVersion.String()
 	if g.conf.Tag.Format != "" {
-		tagName = g.version.InterpolateVersionInString(g.conf.Tag.Format)
+		tagName = g.versionInfo.InterpolateReleaseVersionInString(g.conf.Tag.Format)
 	}
 
-	return g.tag(tagName)
+	return tagName, g.tag(tagName)
 }
 
 func (g *GitHandler) NextDevelopmentCommit() (string, error) {
@@ -101,7 +101,7 @@ func (g *GitHandler) NextDevelopmentCommit() (string, error) {
 		message = g.conf.Commit.Format.Development
 	}
 
-	message = g.version.InterpolateVersionInString(message)
+	message = g.versionInfo.InterpolateNextVersionInString(message)
 
 	return g.commit(message)
 }

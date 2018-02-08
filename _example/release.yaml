@@ -27,15 +27,15 @@ publishing:
     bucket: my-tools
     path: /release-tool/
     artifacts:
-    - build/releaser-darwin
-    - build/release-linux
+      - build/releaser-darwin
+      - build/release-linux
 
   github:
     draft: true
     changelog:
       file: CHANGELOG.md
-      format: Release $version
+      boundary: --- Release $version ---
 
     releaseName: $version
     artifacts:
-    - build/releaser-$version-darwin.tar.gz
+      - build/releaser-$version-darwin.tar.gz

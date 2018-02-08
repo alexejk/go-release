@@ -21,6 +21,10 @@
 
 
 [[constraint]]
+  name = "golang.org/x/oauth2"
+  branch = "master"
+
+[[constraint]]
   name = "github.com/google/go-github"
   branch = "master"
 

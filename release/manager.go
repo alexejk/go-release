@@ -3,17 +3,20 @@ package release
 import (
 	"path/filepath"
 
-	"github.com/coreos/go-semver/semver"
+	"github.com/alexejk/go-release/publishing"
+	"github.com/alexejk/go-release/shared"
 	log "github.com/sirupsen/logrus"
 )
 
 type Manager struct {
 	workDir string
 
-	currentVersion *semver.Version
 	versionHandler *VersionHandler
 	vcs            *GitHandler
 	builder        *Builder
+
+	// Holder object that can be passed around and mutated with latest information
+	versionInfo *shared.VersionInformation
 }
 
 func NewManager(workDir string) *Manager {
@@ -24,11 +27,12 @@ func NewManager(workDir string) *Manager {
 	}
 
 	m := &Manager{
-		workDir: absWorkDir,
+		workDir:     absWorkDir,
+		versionInfo: &shared.VersionInformation{},
 	}
 
 	m.versionHandler = NewVersionHandler(m.workDir)
-	m.vcs = NewGitHandler(m.workDir, m.versionHandler)
+	m.vcs = NewGitHandler(m.workDir, m.versionInfo)
 	m.builder = NewBuilder(m.workDir)
 
 	return m
@@ -45,15 +49,13 @@ func (m *Manager) PreRelease() error {
 	log.Infof("Current project version is '%s'", currentVersion)
 
 	releaseVersion := m.versionHandler.ReleaseVersion(currentVersion)
+	m.versionInfo.ReleaseVersion = releaseVersion
 
 	// Overwrite with the release version
 	log.Infof("Updating project version to '%s'", releaseVersion)
 	if err := m.versionHandler.SetVersion(releaseVersion); err != nil {
 		return err
 	}
-
-	// Update current state
-	m.currentVersion = releaseVersion
 
 	return nil
 }
@@ -80,9 +82,11 @@ func (m *Manager) MakeRelease() error {
 	// Create tag
 	if m.vcs.IsGitRepository() {
 		log.Info("Creating a release tag")
-		if err := m.vcs.ReleaseTag(); err != nil {
+		tagName, err := m.vcs.ReleaseTag()
+		if err != nil {
 			return err
 		}
+		m.versionInfo.GitTagName = tagName
 	}
 
 	return nil
@@ -91,14 +95,14 @@ func (m *Manager) MakeRelease() error {
 func (m *Manager) PostRelease() error {
 
 	// Set next development version
-	nextVersion := m.versionHandler.NextDevelopmentVersion(m.currentVersion)
+	nextVersion := m.versionHandler.NextDevelopmentVersion(m.versionInfo.ReleaseVersion)
+	m.versionInfo.NextVersion = nextVersion
 
 	// Overwrite with the development version
 	log.Infof("Updating project version to '%s'", nextVersion)
 	if err := m.versionHandler.SetVersion(nextVersion); err != nil {
 		return err
 	}
-	m.currentVersion = nextVersion
 
 	// Commit development version
 	if m.vcs.IsGitRepository() {
@@ -120,6 +124,9 @@ func (m *Manager) PostRelease() error {
 	}
 
 	// Publish
+	if err := publishing.ExecPublishers(m.workDir, m.versionInfo); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -249,26 +249,3 @@ func Test_getVersionFile(t *testing.T) {
 		assert.Equal(t, tt.expected, result)
 	}
 }
-
-func TestHandler_InterpolateVersionInString(t *testing.T) {
-
-	data := []struct {
-		input    string
-		version  string
-		expected string
-	}{
-		{"Release ${version}.", "1.2.3", "Release 1.2.3."},
-		{"Release ${version", "1.2.3", "Release ${version"},
-		{"Release $${version}}", "1.2.3", "Release $1.2.3}"},
-	}
-
-	for _, tt := range data {
-
-		instance := &VersionHandler{
-			versionStringCache: tt.version, // This is hacky, don't like it
-		}
-		result := instance.InterpolateVersionInString(tt.input)
-
-		assert.Equal(t, tt.expected, result)
-	}
-}
