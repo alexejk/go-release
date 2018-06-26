@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/alexejk/go-release/config"
 	"github.com/alexejk/go-release/shared"
@@ -14,12 +13,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const githubConfigKey = "publishing.github"
-
-type GitHubChangeLogConfig struct {
-	File   string
-	Format string
-}
+const githubConfigKey = config.PublishingRoot + ".github"
 
 type GitHubPublisher struct {
 	api *github.Client
@@ -70,29 +64,20 @@ func (p *GitHubPublisher) Publish(workDir string, versionInfo *shared.VersionInf
 
 	log.Infof("Uploading release assets (%d)", len(cfg.Artifacts))
 
-	for _, artifactPath := range cfg.Artifacts {
+	publishableArtifacts := GetPublishableArtifacts(cfg.Artifacts, cfg.workDir, versionInfo)
 
-		log.Debugf("Processing artifact definition: '%s'", artifactPath)
+	for _, artifact := range publishableArtifacts {
 
-		interpolatedPath := versionInfo.InterpolateReleaseVersionInString(artifactPath)
-		absPath, err := filepath.Abs(path.Join(workDir, interpolatedPath))
+		file, err := os.Open(artifact.Path)
 		if err != nil {
-			log.Debugf("Unable to find artifact '%s'. %s", absPath, err)
-			continue
-		}
-
-		_, fileName := filepath.Split(absPath)
-
-		file, err := os.Open(absPath)
-		if err != nil {
-			log.Debugf("Unable to read artifact '%s'. %s", absPath, err)
+			log.Debugf("Unable to read artifact '%s'. %s", artifact.Path, err)
 		}
 		uploadOps := &github.UploadOptions{
-			Name: fileName,
+			Name: artifact.Name,
 		}
 		_, _, err = p.api.Repositories.UploadReleaseAsset(context.Background(), cfg.Owner, cfg.Repository, *rel.ID, uploadOps, file)
 		if err != nil {
-			log.Warnf("Failed to upload artifact '%s'. %s", absPath, err)
+			log.Warnf("Failed to upload artifact '%s'. %s", artifact.Path, err)
 		}
 		file.Close()
 	}

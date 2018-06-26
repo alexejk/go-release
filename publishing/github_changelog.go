@@ -7,6 +7,11 @@ import (
 
 const semverRegexp = `(\d+\.\d+\.\d+(-\w+(\+[\w\.\d]*)?)?)`
 
+type GitHubChangeLogConfig struct {
+	File   string
+	Format string
+}
+
 type GitHubChangeLog struct {
 	versions map[string]string
 }

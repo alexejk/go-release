@@ -8,4 +8,6 @@ const (
 
 	ProjectGitRoot      = "project.git"
 	ProjectBuildCommand = "project.build.command"
+
+	PublishingRoot = "publishing"
 )

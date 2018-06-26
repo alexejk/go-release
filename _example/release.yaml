@@ -26,6 +26,7 @@ publishing:
   s3upload:
     bucket: my-tools
     path: /release-tool/
+    region: eu-west-1
     artifacts:
       - build/releaser-darwin
       - build/release-linux

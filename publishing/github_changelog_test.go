@@ -37,6 +37,33 @@ Something else
 - fix 1
 - fix 2`,
 		},
+		{
+			contents: `
+-- UNRELEASED --
+WIP Stuff
+
+Release v1.2.3
+===
+
+This is my release notes
+Something else
+
+- fix 1
+- fix 2
+
+Release v1.2.2
+===
+Not what I want
+`,
+			format: `Release v${version}
+===`,
+			version: "1.2.3",
+			expected: `This is my release notes
+Something else
+
+- fix 1
+- fix 2`,
+		},
 	}
 
 	for _, tt := range data {

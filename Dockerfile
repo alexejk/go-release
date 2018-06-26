@@ -2,7 +2,7 @@
 #################
 # Builder image #
 #################
-FROM golang:1.9-alpine as builder
+FROM golang:1.10-alpine as builder
 
 ENV depVersion=0.4.1
 ENV projectName=go-release

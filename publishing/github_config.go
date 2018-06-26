@@ -67,10 +67,10 @@ func (c *GitHubPublishConfig) parseRemoteUrl(url string) (string, string, error)
 
 	var owner, repo string
 
-	remoteRegexp := regexp.MustCompile(`(.*)github\.com(:|/)([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)\.git$`)
+	remoteRegexp := regexp.MustCompile(`(.*)github\.com(:|/)([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)(\.git)?$`)
 	matches := remoteRegexp.FindStringSubmatch(url)
 
-	if len(matches) == 5 {
+	if len(matches) >= 5 {
 		owner = matches[3]
 		repo = matches[4]
 	} else {

@@ -15,6 +15,7 @@ func init() {
 
 	publishers = []PublishWorker{
 		NewGitHubPublisher(),
+		NewS3Publisher(),
 	}
 }
 
